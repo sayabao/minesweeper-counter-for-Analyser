@@ -2,6 +2,7 @@ import cv2
 import pytesseract
 import numpy as np
 
+# test
 # 读取图片
 image_path = './111.png'
 img = cv2.imread(image_path)
