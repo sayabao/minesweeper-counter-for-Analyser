@@ -1,43 +1,61 @@
 import cv2
-import pytesseract
 import numpy as np
 
-# test
-# 读取图片
+# 加载图像
 image_path = './111.png'
-img = cv2.imread(image_path)
+image = cv2.imread(image_path)
 
-# 将图片转为灰度模式
-gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+# 定义颜色范围 (使用 HSV 格式)
+color_ranges = {
+    '0': ((100, 53, 60), (110, 67, 70)), # 扩大灰色范围
+    '1': ((100, 69, 85), (110, 79, 95)),  # 扩大颜色范围
+    '2': ((80, 160, 80), (105, 190, 105)),   # 扩大绿色范围
+}
 
-# 设定一个阈值，区分浅色和深色
-_, thresh_img = cv2.threshold(gray, 127, 255, cv2.THRESH_BINARY)
+# 初始化矩阵
+num_rows, num_cols = 16, 30
+matrix = [['H' for _ in range(num_cols)] for _ in range(num_rows)]
 
-# 使用pytesseract进行字符识别，配置只识别数字
-custom_config = r'--oem 3 --psm 6 outputbase digits'
-detected_text = pytesseract.image_to_string(thresh_img, config=custom_config)
+# 将图像转换为 HSV 颜色空间
+hsv_image = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
 
-# 获取每个字符的位置信息
-h, w, _ = img.shape
-boxes = pytesseract.image_to_boxes(thresh_img, config=custom_config)
+# 定义网格单元的大小
+cell_height = hsv_image.shape[0] // num_rows
+cell_width = hsv_image.shape[1] // num_cols
 
-# 初始化一个空网格
-grid = [['H' for _ in range(w // 16)] for _ in range(h // 16)]
+# 遍历每个网格单元并进行颜色检测
+for row in range(num_rows):
+    for col in range(num_cols):
+        # 计算每个单元格的坐标
+        x_start = col * cell_width
+        y_start = row * cell_height
+        x_end = x_start + cell_width
+        y_end = y_start + cell_height
 
-# 根据 boxes 替换数字位置
-for box in boxes.splitlines():
-    b = box.split(' ')
-    char, x, y, x2, y2 = b[0], int(b[1]), int(b[2]), int(b[3]), int(b[4])
-    grid_pos_x = x // 16
-    grid_pos_y = (h - y) // 16
-    grid[grid_pos_y][grid_pos_x] = char
+        # 截取每个单元格区域
+        cell = hsv_image[y_start:y_end, x_start:x_end]
 
-# 将深色部分转为 '0'
-for i in range(h // 16):
-    for j in range(w // 16):
-        if thresh_img[i * 16, j * 16] < 127:  # 深色部分
-            grid[i][j] = '0'
+        # 计算平均颜色值
+        avg_color = cv2.mean(cell)[:3]  # 提取平均颜色的 HSV 值
 
-# 打印输出
-for row in grid:
-    print(''.join(row))
+        # 初始化标记为隐藏 ('H')
+        detected_value = 'H'
+
+        # 根据平均颜色值决定矩阵的值
+        for num, (lower, upper) in color_ranges.items():
+            h_check = lower[0] <= avg_color[0] <= upper[0]
+            s_check = lower[1] <= avg_color[1] <= upper[1]
+            v_check = lower[2] <= avg_color[2] <= upper[2]
+            
+            #print(f"Checking {num}: H: {h_check}, S: {s_check}, V: {v_check}")
+
+            if h_check and s_check and v_check:
+                detected_value = num
+                break
+
+        # 将检测到的值和平均颜色填入矩阵
+        matrix[row][col] = (detected_value, avg_color)  # 存储数字和颜色值
+
+# 打印矩阵
+for row in matrix:
+    print(row)
