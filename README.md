@@ -12,4 +12,9 @@
 ~~而且暂时只适用于高级（16×30×99）~~
 添加了适用于中级以及自定义的.py
 
-自定义需要自个手动修改num_rows, num_cols，和最后的总雷数......{num_cols}x{num_rows}x140......
+自定义需要自个手动修改行列数和最后的总雷数
+
+>num_rows, num_cols = `28`, `21`
+>
+>output_str = f"{num_cols}x{num_rows}x`140`\n" + "\n".join("".join(row) for row in matrix)
+
