@@ -47,14 +47,14 @@ color_ranges = {
     'F': ((92, 46, 87), (112, 66, 107)),
     '0': ((94, 51, 53), (114, 71, 73)),
     '1': ((95, 65, 82), (111, 81, 98)),
-    '2': ((81, 67, 85), (97, 83, 101)),
+    '2': ((79, 65, 83), (99, 85, 103)),
     '3': ((120, 68, 89), (140, 88, 109)),
     '4': ((104, 63, 86), (124, 83, 106)),
     '5': ((60, 92, 86), (80, 112, 106)),
     '6': ((89, 73, 84), (109, 93, 104)),
 }
 
-num_rows, num_cols = 16, 30
+num_rows, num_cols = 28, 21
 matrix = [['H' for _ in range(num_cols)] for _ in range(num_rows)]
 hsv_image = cv2.cvtColor(cropped_image_borderless, cv2.COLOR_BGR2HSV)
 cell_width = hsv_image.shape[1] / num_cols
@@ -80,7 +80,7 @@ for row in range(num_rows):
         matrix[row][col] = detected_value
 
 # 构建并保存矩阵文件
-output_str = f"{num_cols}x{num_rows}x99\n" + "\n".join("".join(row) for row in matrix)
+output_str = f"{num_cols}x{num_rows}x140\n" + "\n".join("".join(row) for row in matrix)
 with open("map.mine", "w") as file:
     file.write(output_str)
 
