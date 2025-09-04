@@ -1,5 +1,5 @@
 # 使用方法
-截图，保存为map.png，运行main.py，获得map.mine，用于JSMinesweeper的Minesweeper analyser
+截图，保存为map.png，运行 main.py ，获得 map.mine ，用于JSMinesweeper的Minesweeper analyser
 # 截图示例
 ![一个范例](/map.png)
 # 注
@@ -17,4 +17,3 @@
 >num_rows, num_cols = `28`, `21`
 >
 >output_str = f"{num_cols}x{num_rows}x`140`\n" + "\n".join("".join(row) for row in matrix)
-
